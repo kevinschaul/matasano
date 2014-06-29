@@ -14,12 +14,11 @@ def tryCharacter(bytes1, character):
     xord = xor(bytes1, bytes2)
     s = score(str(xord))
 
-    if (s < 0.6):
-        print()
-        print(character)
-        print(xord)
-        print(s)
-        print()
+    print()
+    print(character)
+    print(xord)
+    print(s)
+    print()
 
 def score(plaintext):
     """
@@ -31,8 +30,9 @@ def score(plaintext):
 
     Returns -1 if there are no letters in the string.
     """
+    plaintextLength = len(plaintext)
     letters = [letter.lower() for letter in plaintext if letter.isalpha()]
-    length = len(letters)
+    lettersLength = len(letters)
     counts = {}
     for letter in letters:
         count = counts.get(letter, 0)
@@ -42,13 +42,16 @@ def score(plaintext):
     frequencies = {}
     for letter in counts:
         count = counts.get(letter)
-        expected = expected_frequencies.get(letter, 0) * length
+        expected = expected_frequencies.get(letter, 0) * lettersLength
         difference += abs(count - expected)
 
-    if length == 0:
+    for i in range(0, plaintextLength - lettersLength):
+        difference += lettersLength
+
+    if plaintextLength == 0:
         return -1
     else:
-        return difference / length
+        return difference / plaintextLength
 
 def xor(bytes1, bytes2):
     bytes_len = len(bytes1)

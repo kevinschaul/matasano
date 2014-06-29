@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
 
 import codecs
-import re
 
 results = []
 
 def main():
-    hex1 = '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'
-    bytes1 = hexToBytes(hex1)
+    with open('4-ciphertext.txt') as cipherTextFile:
+        # Don't include newline characters at the end of each line
+        for line in cipherTextFile.read().splitlines():
+            plaintextHex = line
+            cipherBytes = hexToBytes(plaintextHex)
 
-    for character in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ':
-        tryCharacter(bytes1, character)
+            for character in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 !"#$%&\'()*+,-./':
+                tryCharacter(cipherBytes, character)
 
     sortedResults = sorted(results, key=lambda result: result.get('score'))
-    for result in sortedResults[-5:]:
-        print('{}: {}\n'.format(result.get('xord'), result.get('score')))
+    for result in sortedResults[-20:]:
+        print('{}: {} ({})\n'.format(
+            result.get('xord'),
+            result.get('score'),
+            result.get('key'),
+        ))
 
 def tryCharacter(cipherBytes, character):
     keyBytes = bytes(character, 'ascii') * len(cipherBytes)
@@ -25,6 +31,7 @@ def tryCharacter(cipherBytes, character):
         'character': character,
         'xord': xord,
         'score': s,
+        'key': character,
     })
 
 def score(plaintext):

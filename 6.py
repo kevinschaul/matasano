@@ -2,15 +2,48 @@
 
 import binascii
 import codecs
+import math
 
 def main():
-    h = getHammingDistance('this is a test', 'wokka wokka!!!')
-    print('Should be 37: {}'.format(h))
+    cipherBytes = bytes()
+    with open('6-ciphertext.txt', 'rb') as ciphertextFile:
+        ciphertext = ciphertextFile.read()
+    cipherBytes = base64ToBytes(ciphertext)
+    bestKeySizes = getBestKeySizes(cipherBytes)
+    print(bestKeySizes)
 
-def getHammingDistance(a, b):
-    bytesA = a.encode()
-    bytesB = b.encode()
+    for keysize in bestKeySizes:
+        blocks = splitBytearrayIntoSize(keysize, cipherBytes)
+        print(blocks)
 
+def splitBytearrayIntoSize(size, b):
+    splitBytearray = []
+    innerBytearraySize = math.ceil(len(b) / size)
+    for i in range(0, innerBytearraySize):
+        splitBytearray.append(bytearray())
+
+    i = 0
+    for byte in b:
+        bytearrayIndex = math.floor(i / size)
+        splitBytearray[bytearrayIndex].append(byte)
+        i += 1
+
+    return splitBytearray
+
+def getBestKeySizes(cipherBytes):
+    keysizeDistances = {}
+    for keysize in range(2, 40):
+        distance = getHammingDistance(
+            cipherBytes[0:keysize],
+            cipherBytes[keysize:keysize * 2]
+        )
+        keysizeDistances[keysize] = distance / keysize
+
+    sortedKeysizeDistances = sorted(keysizeDistances.items(),
+            key=lambda x: x[1])
+    return [x[0] for x in sortedKeysizeDistances[:4]]
+
+def getHammingDistance(bytesA, bytesB):
     distance = 0
     for i in range(0, len(bytesA)):
         for j in range(0, 8):
@@ -19,6 +52,9 @@ def getHammingDistance(a, b):
             if bitA != bitB:
                 distance += 1
     return distance
+
+def base64ToBytes(the_base64):
+    return codecs.decode(the_base64, 'base64')
 
 if __name__ == '__main__':
     main()

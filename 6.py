@@ -14,13 +14,23 @@ def main():
 
     for keysize in bestKeySizes:
         blocks = splitBytearrayIntoSize(keysize, cipherBytes)
-        print(blocks)
+        transposedBlocks = transposeBlocks(blocks)
+        print(transposedBlocks)
+
+def transposeBlocks(blocks):
+    transposed = getListOfBytearrays(len(blocks[0]))
+
+    for block in blocks:
+        i = 0
+        for byte in block:
+            transposed[i].append(byte)
+            i += 1
+
+    return transposed
 
 def splitBytearrayIntoSize(size, b):
-    splitBytearray = []
     innerBytearraySize = math.ceil(len(b) / size)
-    for i in range(0, innerBytearraySize):
-        splitBytearray.append(bytearray())
+    splitBytearray = getListOfBytearrays(innerBytearraySize)
 
     i = 0
     for byte in b:
@@ -29,6 +39,12 @@ def splitBytearrayIntoSize(size, b):
         i += 1
 
     return splitBytearray
+
+def getListOfBytearrays(size):
+    l = []
+    for i in range(0, size):
+        l.append(bytearray())
+    return l
 
 def getBestKeySizes(cipherBytes):
     keysizeDistances = {}

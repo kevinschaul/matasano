@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 
-import base64
 import codecs
 import math
+import sys
 
 def main():
-    plaintext = 'Burning \'em, if you ain\'t quick and nimble\nI go crazy when I hear a cymbal'
-    plaintext = 'Israeli Prime Minister Benjamin Netanyahu vowed to keep targeting Palestinian militants despite the growing casualties and diplomatic pressure to end the conflict. Israel\'s military on Sunday also denied its soldiers were behind the deaths of 16 Palestinians killed by shells as they sought refuge in a U.N. school Thursday near an area of intense fighting between Israeli forces and Hamas militants. But Israel\'s military, in a statement, offered no details of its \"comprehensive inquiry,\" releasing a grainy, aerial video showing an Israeli mortar landing in an empty courtyard of the school as proof that it bore no responsibility'
-    key = 'ICE'
-    encrypted = encryptRepeatingKeyXOR(plaintext, key)
-    encryptedHex = bytesToHex(encrypted)
-    print(encryptedHex)
-    print(bytesToBase64(encrypted))
+    with open(sys.argv[1], 'rb') as ciphertextFile:
+        ciphertext = ciphertextFile.read()
+        ciphertextBytes = base64ToBytes(ciphertext)
+        key = sys.argv[2]
+        encrypted = encryptRepeatingKeyXOR(ciphertextBytes, key)
+        encryptedHex = bytesToHex(encrypted)
+        print(encrypted)
 
-def encryptRepeatingKeyXOR(plaintext, key):
-    plaintextBytes = plaintext.encode()
+def encryptRepeatingKeyXOR(plaintextBytes, key):
     keyBytes = key.encode()
     keyBytesRepeated = repeatBytes(len(plaintextBytes), keyBytes)
     return xor(plaintextBytes, keyBytesRepeated)

@@ -11,7 +11,6 @@ def main():
     cipherBytes = base64ToBytes(ciphertext)
     bestKeySizes = getBestKeySizes(cipherBytes)
 
-    bestKeySizes = range(1, 40)
     print(bestKeySizes)
 
     for keysize in bestKeySizes:
@@ -23,20 +22,21 @@ def main():
         for block in transposedBlocks:
             results = []
             for character in [chr(i) for i in range(1, 128)]:
-                tryCharacter(block, character, results)
+                if character.isprintable():
+                    tryCharacter(block, character, results)
 
             sortedResults = sorted(results, key=lambda result: -result.get('score'))
-            for result in sortedResults[:8]:
+            for result in sortedResults:
                 if result.get('score') > 0:
-                    pass
                     #print('{}: {}\t{}\n{}\n\n'.format(blockIndex, result.get('score'), result.get('key'), result.get('xord')))
+                    pass
             key += sortedResults[0].get('key')
             blockIndex += 1
-            #print()
-            #print()
-            #print()
 
+        print(keysize)
         print(key)
+        # KEY IS:
+        # Terminator X: Bring the noise
 
 def transposeBlocks(blocks):
     transposed = getListOfBytearrays(len(blocks[0]))
@@ -69,12 +69,17 @@ def getListOfBytearrays(size):
 
 def getBestKeySizes(cipherBytes):
     keysizeDistances = {}
-    for keysize in range(2, 10):
-        distance = getHammingDistance(
+    for keysize in range(2, 41):
+        distance_1 = getHammingDistance(
             cipherBytes[0:keysize],
             cipherBytes[keysize:keysize * 2]
         )
-        keysizeDistances[keysize] = distance / keysize
+        distance_2 = getHammingDistance(
+            cipherBytes[keysize * 2:keysize * 3],
+            cipherBytes[keysize * 3:keysize * 4]
+        )
+
+        keysizeDistances[keysize] = (distance_1 + distance_2) / 2.0 / keysize
 
     sortedKeysizeDistances = sorted(keysizeDistances.items(),
             key=lambda x: x[1])
@@ -121,13 +126,13 @@ def score(plaintext_bytes):
     Scores range from 0 to 1, with 1 being a perfect match to the expected
     frequencies.
     """
-    plaintext = plaintext_bytes.decode('utf-8')
+    plaintext = plaintext_bytes.decode('ascii')
     plaintextLength = len(plaintext)
     letters = [letter.lower() for letter in plaintext if isEnglishCharacter(letter)]
     lettersLength = len(letters)
-    printables = [character for character in plaintext if character.isprintable()]
-    if len(letters) != len(printables):
-        return 0
+    #printables = [character for character in plaintext if character.isprintable()]
+    #if len(letters) != len(printables):
+        #return 0
     counts = {}
     for letter in letters:
         count = counts.get(letter, 0)
@@ -193,6 +198,7 @@ expected_frequencies = {
     'x': .00150,
     'y': .01974,
     'z': .00074,
+    ' ': .14000,
 }
 
 if __name__ == '__main__':

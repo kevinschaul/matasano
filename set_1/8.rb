@@ -3,6 +3,11 @@
 require 'base64'
 require 'set'
 
+# Since encryption in CBC mode is deterministic, repition in the plaintext may
+# be noticable by comparing encrypted bytes to themselves in the ciphertext.
+# This code splits the ciphertexts into blocks of 8 bytes (256 bit key) and
+# finds the number of repeated blocks.
+
 # Read ciphertext file
 lines = File.open('8-ciphertext.txt', 'rb').readlines
 bytes_array = lines.map{ |line| Base64.decode64(line) }

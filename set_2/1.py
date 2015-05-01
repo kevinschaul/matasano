@@ -9,12 +9,6 @@ def main():
     padded_bytes = pad(the_bytes, 20)
     print(padded_bytes)
 
-def hexToBytes(the_hex):
-    return codecs.decode(the_hex, 'hex_codec')
-
-def bytesToBase64(the_bytes):
-    return codecs.encode(the_bytes, 'base64')
-
 def pad(the_bytes, block_length):
     """
     Returns a PKCS#7-padded version of `the_bytes`, padded to a length of
